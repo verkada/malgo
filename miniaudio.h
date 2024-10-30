@@ -12159,14 +12159,14 @@ static MA_INLINE ma_bool32 ma_is_standard_sample_rate(ma_uint32 sampleRate)
 
 static ma_format g_maFormatPriorities[] = {
     ma_format_s16,         /* Most common */
-    ma_format_f32,
+    // ma_format_f32,
 
     /*ma_format_s24_32,*/    /* Clean alignment */
-    ma_format_s32,
+    // ma_format_s32,
 
-    ma_format_s24,         /* Unclean alignment */
+    // ma_format_s24,         /* Unclean alignment */
 
-    ma_format_u8           /* Low quality */
+    // ma_format_u8           /* Low quality */
 };
 #if defined(__clang__) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)))
     #pragma GCC diagnostic pop
@@ -27477,6 +27477,7 @@ static ma_result ma_context_get_device_info__alsa(ma_context* pContext, ma_devic
     */
 
     /* Formats. We just iterate over our standard formats and test them, making sure we reset the configuration space each iteration. */
+#if 0
     for (iFormat = 0; iFormat < ma_countof(g_maFormatPriorities); iFormat += 1) {
         ma_format format = g_maFormatPriorities[iFormat];
 
@@ -27546,6 +27547,7 @@ static ma_result ma_context_get_device_info__alsa(ma_context* pContext, ma_devic
             /* The format is not supported. Skip. */
         }
     }
+#endif
 
     ma_free(pHWParams, &pContext->allocationCallbacks);
 
@@ -41993,11 +41995,12 @@ MA_API ma_result ma_device_init(ma_context* pContext, const ma_device_config* pC
     }
 
     /* Log device information. */
+#if 0
     {
         ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_INFO, "[%s]\n", ma_get_backend_name(pDevice->pContext->backend));
         if (pDevice->type == ma_device_type_capture || pDevice->type == ma_device_type_duplex || pDevice->type == ma_device_type_loopback) {
-            char name[MA_MAX_DEVICE_NAME_LENGTH + 1];
-            ma_device_get_name(pDevice, (pDevice->type == ma_device_type_loopback) ? ma_device_type_playback : ma_device_type_capture, name, sizeof(name), NULL);
+            char *name = "unknown";
+            // ma_device_get_name(pDevice, (pDevice->type == ma_device_type_loopback) ? ma_device_type_playback : ma_device_type_capture, name, sizeof(name), NULL);
 
             ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_INFO, "  %s (%s)\n", name, "Capture");
             ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_INFO, "    Format:      %s -> %s\n", ma_get_format_name(pDevice->capture.internalFormat), ma_get_format_name(pDevice->capture.format));
@@ -42020,8 +42023,8 @@ MA_API ma_result ma_device_init(ma_context* pContext, const ma_device_config* pC
             }
         }
         if (pDevice->type == ma_device_type_playback || pDevice->type == ma_device_type_duplex) {
-            char name[MA_MAX_DEVICE_NAME_LENGTH + 1];
-            ma_device_get_name(pDevice, ma_device_type_playback, name, sizeof(name), NULL);
+            char *name = "unknown";
+            // ma_device_get_name(pDevice, ma_device_type_playback, name, sizeof(name), NULL);
 
             ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_INFO, "  %s (%s)\n", name, "Playback");
             ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_INFO, "    Format:      %s -> %s\n", ma_get_format_name(pDevice->playback.format), ma_get_format_name(pDevice->playback.internalFormat));
@@ -42044,6 +42047,7 @@ MA_API ma_result ma_device_init(ma_context* pContext, const ma_device_config* pC
             }
         }
     }
+#endif
 
     MA_ASSERT(ma_device_get_state(pDevice) == ma_device_state_stopped);
     return MA_SUCCESS;
