@@ -28358,6 +28358,7 @@ static ma_result ma_device_wait__alsa(ma_device* pDevice, ma_snd_pcm_t* pPCM, st
             ma_snd_pcm_state_t state = ((ma_snd_pcm_state_proc)pDevice->pContext->alsa.snd_pcm_state)(pPCM);
             if (state == MA_SND_PCM_STATE_XRUN) {
                 /* The PCM is in a xrun state. This will be recovered from at a higher level. We can disregard this. */
+                ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_WARNING, "[ALSA] In XRUN STATE\n");
             } else {
                 ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_WARNING, "[ALSA] POLLERR detected. status = %d\n", ((ma_snd_pcm_state_proc)pDevice->pContext->alsa.snd_pcm_state)(pPCM));
             }
@@ -28407,13 +28408,13 @@ static ma_result ma_device_read__alsa(ma_device* pDevice, void* pFramesOut, ma_u
             break;  /* Success. */
         } else {
             if (resultALSA == -EAGAIN) {
-                /*ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_DEBUG, "EGAIN (read)\n");*/
+                ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_DEBUG, "EGAIN (read)\n");
                 continue;   /* Try again. */
             } else if (resultALSA == -EPIPE) {
                 ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_DEBUG, "EPIPE (read)\n");
 
                 /* Overrun. Recover and try again. If this fails we need to return an error. */
-                resultALSA = ((ma_snd_pcm_recover_proc)pDevice->pContext->alsa.snd_pcm_recover)((ma_snd_pcm_t*)pDevice->alsa.pPCMCapture, resultALSA, MA_TRUE);
+                resultALSA = ((ma_snd_pcm_recover_proc)pDevice->pContext->alsa.snd_pcm_recover)((ma_snd_pcm_t*)pDevice->alsa.pPCMCapture, resultALSA, MA_FALSE);
                 if (resultALSA < 0) {
                     ma_log_post(ma_device_get_log(pDevice), MA_LOG_LEVEL_ERROR, "[ALSA] Failed to recover device after overrun.");
                     return ma_result_from_errno((int)-resultALSA);
@@ -28462,13 +28463,13 @@ static ma_result ma_device_write__alsa(ma_device* pDevice, const void* pFrames, 
             break;  /* Success. */
         } else {
             if (resultALSA == -EAGAIN) {
-                /*ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_DEBUG, "EGAIN (write)\n");*/
+                ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_ERROR, "EGAIN (write)\n");
                 continue;   /* Try again. */
             } else if (resultALSA == -EPIPE) {
-                ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_DEBUG, "EPIPE (write)\n");
+                ma_log_postf(ma_device_get_log(pDevice), MA_LOG_LEVEL_ERROR, "EPIPE (write)\n");
 
                 /* Underrun. Recover and try again. If this fails we need to return an error. */
-                resultALSA = ((ma_snd_pcm_recover_proc)pDevice->pContext->alsa.snd_pcm_recover)((ma_snd_pcm_t*)pDevice->alsa.pPCMPlayback, resultALSA, MA_TRUE);    /* MA_TRUE=silent (don't print anything on error). */
+                resultALSA = ((ma_snd_pcm_recover_proc)pDevice->pContext->alsa.snd_pcm_recover)((ma_snd_pcm_t*)pDevice->alsa.pPCMPlayback, resultALSA, MA_FALSE);    /* MA_TRUE=silent (don't print anything on error). */
                 if (resultALSA < 0) {
                     ma_log_post(ma_device_get_log(pDevice), MA_LOG_LEVEL_ERROR, "[ALSA] Failed to recover device after underrun.");
                     return ma_result_from_errno((int)-resultALSA);
