@@ -150,6 +150,18 @@ func (dev *Device) Uninit() {
 var deviceMutex sync.RWMutex
 var dataCallbacks = make(map[*C.ma_device]DataProc)
 var stopCallbacks = make(map[*C.ma_device]StopProc)
+var format_sizes = [...]uint{
+	0, /* unknown */
+	1, /* u8 */
+	2, /* s16 */
+	3, /* s24 */
+	4, /* s32 */
+	4, /* f32 */
+}
+
+func bytesPerSample(format C.ma_format) uint {
+	return format_sizes[format]
+}
 
 //export goDataCallback
 func goDataCallback(pDevice *C.ma_device, pOutput, pInput unsafe.Pointer, frameCount C.ma_uint32) {
@@ -162,13 +174,13 @@ func goDataCallback(pDevice *C.ma_device, pOutput, pInput unsafe.Pointer, frameC
 
 		if pOutput != nil {
 			sampleCount := uint32(frameCount) * uint32(pDevice.playback.channels)
-			sizeInBytes := uint32(C.ma_get_bytes_per_sample(pDevice.playback.format))
+			sizeInBytes := uint32(bytesPerSample(pDevice.playback.format))
 			outputSamples = unsafe.Slice((*byte)(pOutput), sampleCount*sizeInBytes)
 		}
 
 		if pInput != nil {
 			sampleCount := uint32(frameCount) * uint32(pDevice.capture.channels)
-			sizeInBytes := uint32(C.ma_get_bytes_per_sample(pDevice.capture.format))
+			sizeInBytes := uint32(bytesPerSample(pDevice.capture.format))
 			inputSamples = unsafe.Slice((*byte)(pInput), sampleCount*sizeInBytes)
 		}
 
