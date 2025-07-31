@@ -147,15 +147,15 @@ func (dev *Device) Uninit() {
 	dev.free()
 }
 
-var deviceMutex sync.Mutex
+var deviceMutex sync.RWMutex
 var dataCallbacks = make(map[*C.ma_device]DataProc)
 var stopCallbacks = make(map[*C.ma_device]StopProc)
 
 //export goDataCallback
 func goDataCallback(pDevice *C.ma_device, pOutput, pInput unsafe.Pointer, frameCount C.ma_uint32) {
-	deviceMutex.Lock()
+	deviceMutex.RLock()
 	callback := dataCallbacks[pDevice]
-	deviceMutex.Unlock()
+	deviceMutex.RUnlock()
 
 	if callback != nil {
 		var inputSamples, outputSamples []byte
@@ -178,9 +178,9 @@ func goDataCallback(pDevice *C.ma_device, pOutput, pInput unsafe.Pointer, frameC
 
 //export goStopCallback
 func goStopCallback(pDevice *C.ma_device) {
-	deviceMutex.Lock()
+	deviceMutex.RLock()
 	callback := stopCallbacks[pDevice]
-	deviceMutex.Unlock()
+	deviceMutex.RUnlock()
 
 	if callback != nil {
 		callback()
