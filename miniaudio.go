@@ -2,10 +2,10 @@
 package malgo
 
 /*
-#cgo CFLAGS: -std=gnu99 -Wno-unused-result
+#cgo CFLAGS: -std=gnu99 -Wno-unused-result -DMA_NO_RUNTIME_LINKING=1
 #cgo ma_debug CFLAGS: -DMA_DEBUG_OUTPUT=1
 
-#cgo linux,!android LDFLAGS: -ldl -lpthread -lm
+#cgo linux,!android LDFLAGS: -lasound -lpthread -lm
 #cgo linux,arm LDFLAGS: -latomic
 #cgo openbsd LDFLAGS: -lpthread -lm
 #cgo netbsd LDFLAGS: -ldl -lpthread -lm
