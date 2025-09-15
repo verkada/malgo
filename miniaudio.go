@@ -4,7 +4,7 @@ package malgo
 /*
 #cgo CFLAGS: -Wno-unused-result
 #cgo !ma_verkada CFLAGS: -std=gnu99
-#cgo linux,ma_verkada CFLAGS: -DMA_NO_RUNTIME_LINKING=1 -DMA_NO_PULSEAUDIO=1 -MA_NO_JACK=1
+#cgo linux,ma_verkada CFLAGS: -DMA_NO_RUNTIME_LINKING=1 -DMA_NO_PULSEAUDIO=1 -DMA_NO_JACK=1
 #cgo ma_debug CFLAGS: -DMA_DEBUG_OUTPUT=1
 
 #cgo linux,!android LDFLAGS: -lasound -lpthread -lm
